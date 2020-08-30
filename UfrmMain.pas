@@ -370,13 +370,6 @@ begin
   adotemp555.SQL.Text:='select name,Reserve2 from CommCode where TypeName=''异常建议'' ';
   adotemp555.Open;
 
-  //Delphi XE开始对正则表达式内置支持
-  //Delphi XE以前版本如需使用正则表达式,http://www.regular-expressions.info/delphi.html链接Download the latest class-based TPerlRegEx下载
-  //该版本无需安装组件.官方强烈建议使用该版本
-  //使用方法:
-  //1.将PerlRegEx.pas、pcre.pas、文件夹pcre复制到项目源代码目录
-  //2.使用正则表达式类TPerlRegEx的单元引用(uses)PerlRegEx
-  //3.该版本与组件安装版本(Download the older component-based TPerlRegEx)的使用区别是TPerlRegEx.Create无需参数nil
   RegEx := TPerlRegEx.Create;
   RegEx.Subject := Eqip_Jcts;
   RegEx.RegEx   := '。|；';//正则表达式用|分隔多个分隔符
