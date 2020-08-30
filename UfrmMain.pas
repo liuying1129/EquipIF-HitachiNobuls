@@ -42,6 +42,7 @@ type
     Action1: TAction;
     Label1: TLabel;
     Label3: TLabel;
+    Label4: TLabel;
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure ADOQuery1AfterOpen(DataSet: TDataSet);
@@ -215,7 +216,8 @@ end;
 
 procedure TfrmMain.FormShow(Sender: TObject);
 begin
-  //StatusBar1.Panels[3].Text:=PeisConnStr;
+  StatusBar1.Panels[2].Text:=SYSNAME;
+  
   UpdateEquipAdoquery;
 end;
 
@@ -367,10 +369,17 @@ begin
   adotemp555.SQL.Clear;
   adotemp555.SQL.Text:='select name,Reserve2 from CommCode where TypeName=''异常建议'' ';
   adotemp555.Open;
-  
-  RegEx := TPerlRegEx.Create(nil);
+
+  //Delphi XE开始对正则表达式内置支持
+  //Delphi XE以前版本如需使用正则表达式,http://www.regular-expressions.info/delphi.html链接Download the latest class-based TPerlRegEx下载
+  //该版本无需安装组件.官方强烈建议使用该版本
+  //使用方法:
+  //1.将PerlRegEx.pas、pcre.pas、文件夹pcre复制到项目源代码目录
+  //2.使用正则表达式类TPerlRegEx的单元引用(uses)PerlRegEx
+  //3.该版本与组件安装版本(Download the older component-based TPerlRegEx)的使用区别是TPerlRegEx.Create无需参数nil
+  RegEx := TPerlRegEx.Create;
   RegEx.Subject := Eqip_Jcts;
-  RegEx.RegEx   := '。|；';//用|分隔多个分隔符
+  RegEx.RegEx   := '。|；';//正则表达式用|分隔多个分隔符
   Eqip_Jcts_List:=TStringList.Create;
   RegEx.Split(Eqip_Jcts_List,MaxInt);//MaxInt,表示能分多少就分多少
   FreeAndNil(RegEx);
@@ -391,29 +400,23 @@ begin
   Eqip_Jcts_List.Free;
   adotemp555.Free;
 
-  //if trim(Peis_Jcjl)<>'' then
-  //begin
-    Peis_Jcjl_Num:=strtoint(ScalarSQLCmd(PeisConnStr,'select count(*) from chk_valu cv where cv.pkunid='+Peis_Unid+' and cv.itemid='''+jcjl_itemid+''' '));
-    if Peis_Jcjl_Num<=0 then
-    begin
-      ExecSQLCmd(PeisConnStr,'insert into chk_valu (pkunid,itemid,itemvalue) values ('+Peis_Unid+','''+jcjl_itemid+''','''+Peis_Jcjl+''')');
-    end else
-    begin
-      ExecSQLCmd(PeisConnStr,'update chk_valu set itemvalue='''+Peis_Jcjl+''' where pkunid='+Peis_Unid+' and itemid='''+jcjl_itemid+''' ');
-    end;
-  //end;
+  Peis_Jcjl_Num:=strtoint(ScalarSQLCmd(PeisConnStr,'select count(*) from chk_valu cv where cv.pkunid='+Peis_Unid+' and cv.itemid='''+jcjl_itemid+''' '));
+  if Peis_Jcjl_Num<=0 then
+  begin
+    ExecSQLCmd(PeisConnStr,'insert into chk_valu (pkunid,itemid,itemvalue) values ('+Peis_Unid+','''+jcjl_itemid+''','''+Peis_Jcjl+''')');
+  end else
+  begin
+    ExecSQLCmd(PeisConnStr,'update chk_valu set itemvalue='''+Peis_Jcjl+''' where pkunid='+Peis_Unid+' and itemid='''+jcjl_itemid+''' ');
+  end;
 
-  //if trim(Peis_Jcjy)<>'' then
-  //begin
-    Peis_Jcjy_Num:=strtoint(ScalarSQLCmd(PeisConnStr,'select count(*) from chk_valu cv where cv.pkunid='+Peis_Unid+' and cv.itemid='''+jcjy_itemid+''' '));
-    if Peis_Jcjy_Num<=0 then
-    begin
-      ExecSQLCmd(PeisConnStr,'insert into chk_valu (pkunid,itemid,itemvalue) values ('+Peis_Unid+','''+jcjy_itemid+''','''+Peis_Jcjy+''')');
-    end else
-    begin
-      ExecSQLCmd(PeisConnStr,'update chk_valu set itemvalue='''+Peis_Jcjy+''' where pkunid='+Peis_Unid+' and itemid='''+jcjy_itemid+''' ');
-    end;
-  //end;
+  Peis_Jcjy_Num:=strtoint(ScalarSQLCmd(PeisConnStr,'select count(*) from chk_valu cv where cv.pkunid='+Peis_Unid+' and cv.itemid='''+jcjy_itemid+''' '));
+  if Peis_Jcjy_Num<=0 then
+  begin
+    ExecSQLCmd(PeisConnStr,'insert into chk_valu (pkunid,itemid,itemvalue) values ('+Peis_Unid+','''+jcjy_itemid+''','''+Peis_Jcjy+''')');
+  end else
+  begin
+    ExecSQLCmd(PeisConnStr,'update chk_valu set itemvalue='''+Peis_Jcjy+''' where pkunid='+Peis_Unid+' and itemid='''+jcjy_itemid+''' ');
+  end;
 
   ADOQuery3.Requery;
 end;

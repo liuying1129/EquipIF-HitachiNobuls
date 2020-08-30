@@ -31,8 +31,7 @@ object frmMain: TfrmMain
         Width = 400
       end
       item
-        Text = 'PEIS'
-        Width = 30
+        Width = 35
       end
       item
         Width = 50
@@ -142,9 +141,9 @@ object frmMain: TfrmMain
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 2
-      Top = 95
+      Top = 115
       Width = 640
-      Height = 383
+      Height = 363
       ActivePage = TabSheet1
       Align = alClient
       TabOrder = 0
@@ -154,7 +153,7 @@ object frmMain: TfrmMain
           Left = 0
           Top = 0
           Width = 632
-          Height = 355
+          Height = 335
           Align = alClient
           DataSource = DataSource1
           ReadOnly = True
@@ -184,7 +183,7 @@ object frmMain: TfrmMain
       Left = 2
       Top = 15
       Width = 640
-      Height = 80
+      Height = 100
       Align = alTop
       TabOrder = 1
       object Label1: TLabel
@@ -202,7 +201,7 @@ object frmMain: TfrmMain
       end
       object Label3: TLabel
         Left = 31
-        Top = 29
+        Top = 28
         Width = 328
         Height = 16
         Caption = '2'#12289#36890#36807#22995#21517#12289#24180#40836#12289#24615#21035#21305#37197'PEIS'#20013#30340#21463#26816#32773
@@ -213,9 +212,22 @@ object frmMain: TfrmMain
         Font.Style = [fsItalic]
         ParentFont = False
       end
+      object Label4: TLabel
+        Left = 31
+        Top = 48
+        Width = 600
+        Height = 16
+        Caption = '3'#12289#32467#35770#29983#25104#35268#21017':'#20013#25991#21477#21495#12289#20998#21495#23558#26816#26597#25552#31034#20998#27573','#19981#21547'"'#26410#35265#26126#26174#24322#24120'"'#30340#25552#31034#20026#32467#35770
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clRed
+        Font.Height = -16
+        Font.Name = #23435#20307
+        Font.Style = [fsItalic]
+        ParentFont = False
+      end
       object DBNavigator1: TDBNavigator
         Left = 144
-        Top = 50
+        Top = 69
         Width = 192
         Height = 25
         DataSource = DataSource1
@@ -224,7 +236,7 @@ object frmMain: TfrmMain
       end
       object BitBtn1: TBitBtn
         Left = 376
-        Top = 50
+        Top = 69
         Width = 100
         Height = 25
         Caption = #21457#36865#21040'PEIS(F3)'
@@ -233,7 +245,7 @@ object frmMain: TfrmMain
       end
       object BitBtn2: TBitBtn
         Left = 8
-        Top = 50
+        Top = 69
         Width = 75
         Height = 25
         Caption = #21047#26032
@@ -257,7 +269,7 @@ object frmMain: TfrmMain
   object DataSource1: TDataSource
     DataSet = ADOQuery1
     Left = 64
-    Top = 124
+    Top = 182
   end
   object ADOQuery1: TADOQuery
     Connection = ADOConnEquip
@@ -265,7 +277,7 @@ object frmMain: TfrmMain
     AfterScroll = ADOQuery1AfterScroll
     Parameters = <>
     Left = 96
-    Top = 124
+    Top = 182
   end
   object ADOQuery2: TADOQuery
     Connection = ADOConnPEIS
