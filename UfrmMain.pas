@@ -212,7 +212,7 @@ begin
   'LEFT JOIN T_StudyResult SR ON SR.StudyIdentity=S.StudyIdentity '+
   'LEFT JOIN PEIS_Send PS ON PS.StudyResultIdentity=SR.StudyResultIdentity '+
   ' where S.StudyState=''已打印'' '+//只查询已完成报告单
-  ' and O.ClinicDepartment=''体检'' '+//只查询体检报告单
+  ' and O.ClinicDepartment=''体检'' '+//只查询体检报告单(申请科室=体检)
   ' and P.PatientName is not null and P.PatientName<>'''' '+//无姓名不发送
   'ORDER BY CreateDateTime DESC';
   ADOQuery1.Close;
