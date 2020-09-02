@@ -141,9 +141,9 @@ object frmMain: TfrmMain
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 2
-      Top = 115
+      Top = 131
       Width = 640
-      Height = 363
+      Height = 347
       ActivePage = TabSheet1
       Align = alClient
       TabOrder = 0
@@ -153,7 +153,7 @@ object frmMain: TfrmMain
           Left = 0
           Top = 0
           Width = 632
-          Height = 335
+          Height = 319
           Align = alClient
           DataSource = DataSource1
           ReadOnly = True
@@ -163,6 +163,7 @@ object frmMain: TfrmMain
           TitleFont.Height = -13
           TitleFont.Name = #23435#20307
           TitleFont.Style = []
+          OnDrawColumnCell = DBGrid1DrawColumnCell
         end
       end
       object TabSheet2: TTabSheet
@@ -183,15 +184,15 @@ object frmMain: TfrmMain
       Left = 2
       Top = 15
       Width = 640
-      Height = 100
+      Height = 116
       Align = alTop
       TabOrder = 1
       object Label1: TLabel
         Left = 8
         Top = 8
-        Width = 544
+        Width = 464
         Height = 16
-        Caption = #27880':1'#12289#27599#27425#21457#36865#20026#35206#30422'('#38750#36861#21152')'#25805#20316','#22240#27492','#20165#25903#25345'1'#20010#21463#26816#32773'1'#24352#25253#21578#21333#30340#24773#20917
+        Caption = #27880':1'#12289#23545#20110#21457#36865#25805#20316','#26816#26597#25552#31034#20026#35206#30422#26041#24335','#32467#35770#12289#24314#35758#20026#36861#21152#26041#24335
         Font.Charset = ANSI_CHARSET
         Font.Color = clRed
         Font.Height = -16
@@ -225,9 +226,22 @@ object frmMain: TfrmMain
         Font.Style = [fsItalic]
         ParentFont = False
       end
+      object Label5: TLabel
+        Left = 31
+        Top = 68
+        Width = 248
+        Height = 16
+        Caption = '4'#12289#21463#26816#32773#22995#21517#20026#32418#33394#34920#31034#21457#36865#25104#21151
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clRed
+        Font.Height = -16
+        Font.Name = #23435#20307
+        Font.Style = [fsItalic]
+        ParentFont = False
+      end
       object DBNavigator1: TDBNavigator
         Left = 144
-        Top = 69
+        Top = 87
         Width = 192
         Height = 25
         DataSource = DataSource1
@@ -236,7 +250,7 @@ object frmMain: TfrmMain
       end
       object BitBtn1: TBitBtn
         Left = 376
-        Top = 69
+        Top = 87
         Width = 100
         Height = 25
         Caption = #21457#36865#21040'PEIS(F3)'
@@ -245,7 +259,7 @@ object frmMain: TfrmMain
       end
       object BitBtn2: TBitBtn
         Left = 8
-        Top = 69
+        Top = 87
         Width = 75
         Height = 25
         Caption = #21047#26032

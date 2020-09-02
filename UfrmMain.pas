@@ -43,6 +43,7 @@ type
     Label1: TLabel;
     Label3: TLabel;
     Label4: TLabel;
+    Label5: TLabel;
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure ADOQuery1AfterOpen(DataSet: TDataSet);
@@ -53,6 +54,8 @@ type
     procedure ADOQuery3AfterOpen(DataSet: TDataSet);
     procedure ADOQuery3AfterScroll(DataSet: TDataSet);
     procedure BitBtn2Click(Sender: TObject);
+    procedure DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
   private
     { Private declarations }
     function MakeDBConn(const ADB:string;AADOConn:TADOConnection):boolean;
@@ -71,10 +74,11 @@ uses UCommFunction;
 
 const
   sCryptSeed='lc';//加解密种子
-  SYSNAME='LIS';//todo PEIS
+  SYSNAME='PEIS'; 
 
 var
   PeisConnStr:String;
+  EquipConnStr:String;
 
 {$R *.dfm}
 
@@ -134,6 +138,7 @@ begin
     AADOConn.Connected := true;
     result:=true;
     if ADB='PEIS数据库' then PeisConnStr:=newconnstr;
+    if ADB='设备数据库' then EquipConnStr:=newconnstr;
   except
   end;
   if not result then
@@ -159,9 +164,6 @@ begin
       ',P.CreateDateTime as 创建时间 '+
       ',O.ClinicDepartment as 送检科室 '+
       ',O.ClinicDoctor as 送检医生 '+
-      //',PS.SendSuccNum AS 发送成功次数 '+
-      //',PS.LastSendDes AS 最后发送情况 '+
-      //',PS.LastSendTime AS 最后发送时间 '+
       ',SR.StudyHint as 检查提示 '+
       ',SR.StudySee as 检查所见 '+
       ',P.PatientIdentity '+
@@ -200,14 +202,19 @@ begin
       ',SR.LastUpdate '+
       ',SR.LastStudyDoctor '+
 
+      ',PS.SendSuccNum '+// AS 发送成功次数
+      //',PS.LastSendDes AS 最后发送情况 '+
+      //',PS.LastSendTime AS 最后发送时间 '+
+
   'FROM T_Patient P '+
   'LEFT JOIN T_Order O ON O.PatientIdentity=P.PatientIdentity '+
   'LEFT JOIN T_Study S ON S.OrderIdentity=O.OrderIdentity '+
   'LEFT JOIN T_StudyResult SR ON SR.StudyIdentity=S.StudyIdentity '+
-  //'LEFT JOIN PEIS_Send PS ON PS.PatientIdentity=P.PatientIdentity '+
-  ' where P.PatientName is not null and P.PatientName<>'''' '+//无姓名不发送
+  'LEFT JOIN PEIS_Send PS ON PS.StudyResultIdentity=SR.StudyResultIdentity '+
+  ' where S.StudyState=''已打印'' '+//只查询已完成报告单
+  ' and O.ClinicDepartment=''体检'' '+//只查询体检报告单
+  ' and P.PatientName is not null and P.PatientName<>'''' '+//无姓名不发送
   'ORDER BY CreateDateTime DESC';
-  //todo 只查询已完成单、只查询体检单
   ADOQuery1.Close;
   ADOQuery1.SQL.Clear;
   ADOQuery1.SQL.Add(ss1);
@@ -249,9 +256,13 @@ var
   jcjl_itemid:string;//【检查结论】项目代码
   jcjy_itemid:string;//【检查建议】项目代码
   Eqip_Jcts:String;
+  Eqip_Jcts2:String;
   Peis_Unid:String;
   Eqip_Jcts_List:TStrings;
   RegEx: TPerlRegEx;
+  RegEx2: TPerlRegEx;
+  RegEx3: TPerlRegEx;
+  b3:boolean;
   i:integer;
 
   Peis_Jcjl:String;
@@ -260,6 +271,8 @@ var
   Peis_Jcts_Num:integer;
   Peis_Jcjl_Num:integer;
   Peis_Jcjy_Num:integer;
+
+  StudyResultIdentity:String;
 begin
   if ADOQuery1.RecordCount<=0 then
   begin
@@ -296,13 +309,13 @@ begin
   adotemp3.Open;
   if adotemp3.RecordCount<=0 then
   begin
-    MESSAGEDLG('不存在B超【检查提示】项目(保留字段5=3).请管理员检查项目设置!',mtError,[MBOK],0);
+    MESSAGEDLG('不存在彩超【检查提示】项目(保留字段5=3).请管理员检查项目设置!',mtError,[MBOK],0);
     adotemp3.Free;
     exit;
   end;
   if adotemp3.RecordCount>1 then
   begin
-    MESSAGEDLG('存在多条B超【检查提示】项目(保留字段5=3).请管理员检查项目设置!',mtError,[MBOK],0);
+    MESSAGEDLG('存在多条彩超【检查提示】项目(保留字段5=3).请管理员检查项目设置!',mtError,[MBOK],0);
     adotemp3.Free;
     exit;
   end;
@@ -313,17 +326,17 @@ begin
   adotemp4.Connection:=ADOConnPEIS;
   adotemp4.Close;
   adotemp4.SQL.Clear;
-  adotemp4.SQL.Text:='select itemid from clinicchkitem cci where cci.Reserve5=4 ';
+  adotemp4.SQL.Text:='select itemid from clinicchkitem cci where cci.Reserve5=1 ';
   adotemp4.Open;
   if adotemp4.RecordCount<=0 then
   begin
-    MESSAGEDLG('不存在B超【检查结论】项目(保留字段5=4).请管理员检查项目设置!',mtError,[MBOK],0);
+    MESSAGEDLG('不存在【检查结论】项目(保留字段5=1).请管理员检查项目设置!',mtError,[MBOK],0);
     adotemp4.Free;
     exit;
   end;
   if adotemp4.RecordCount>1 then
   begin
-    MESSAGEDLG('存在多条B超【检查结论】项目(保留字段5=4).请管理员检查项目设置!',mtError,[MBOK],0);
+    MESSAGEDLG('存在多条【检查结论】项目(保留字段5=1).请管理员检查项目设置!',mtError,[MBOK],0);
     adotemp4.Free;
     exit;
   end;
@@ -334,17 +347,17 @@ begin
   adotemp5.Connection:=ADOConnPEIS;
   adotemp5.Close;
   adotemp5.SQL.Clear;
-  adotemp5.SQL.Text:='select itemid from clinicchkitem cci where cci.Reserve5=5 ';
+  adotemp5.SQL.Text:='select itemid from clinicchkitem cci where cci.Reserve5=2 ';
   adotemp5.Open;
   if adotemp5.RecordCount<=0 then
   begin
-    MESSAGEDLG('不存在B超【检查建议】项目(保留字段5=5).请管理员检查项目设置!',mtError,[MBOK],0);
+    MESSAGEDLG('不存在【检查建议】项目(保留字段5=2).请管理员检查项目设置!',mtError,[MBOK],0);
     adotemp5.Free;
     exit;
   end;
   if adotemp5.RecordCount>1 then
   begin
-    MESSAGEDLG('存在多条B超【检查建议】项目(保留字段5=5).请管理员检查项目设置!',mtError,[MBOK],0);
+    MESSAGEDLG('存在多条【检查建议】项目(保留字段5=2).请管理员检查项目设置!',mtError,[MBOK],0);
     adotemp5.Free;
     exit;
   end;
@@ -359,7 +372,7 @@ begin
     ExecSQLCmd(PeisConnStr,'insert into chk_valu (pkunid,itemid,itemvalue) values ('+Peis_Unid+','''+jcts_itemid+''','''+Eqip_Jcts+''')');
   end else
   begin
-    if (MessageDlg('PEIS存在检查数据,将覆盖原有检查数据,确定吗？', mtConfirmation, [mbYes, mbNo], 0) <> mrYes) then exit;
+    //if (MessageDlg('PEIS存在检查数据,将覆盖原有检查数据,确定吗？', mtConfirmation, [mbYes, mbNo], 0) <> mrYes) then exit;
     ExecSQLCmd(PeisConnStr,'update chk_valu set itemvalue='''+Eqip_Jcts+''' where pkunid='+Peis_Unid+' and itemid='''+jcts_itemid+''' ');
   end;
 
@@ -372,23 +385,40 @@ begin
 
   RegEx := TPerlRegEx.Create;
   RegEx.Subject := Eqip_Jcts;
-  RegEx.RegEx   := '。|；';//正则表达式用|分隔多个分隔符
+  RegEx.RegEx   := '。|；';//用|分隔多个分隔符.正则表达式|表示"或"
   Eqip_Jcts_List:=TStringList.Create;
   RegEx.Split(Eqip_Jcts_List,MaxInt);//MaxInt,表示能分多少就分多少
   FreeAndNil(RegEx);
   for i :=0  to Eqip_Jcts_List.Count-1 do
   begin
     if pos('未见明显异常',Eqip_Jcts_List[i])>0 then continue;
-    Peis_Jcjl:=Peis_Jcjl+Eqip_Jcts_List[i]+#13;//检查结论
+    
+    //生成检查结论begin
+    //删除检查提示中的序号(如1、23、)
+    RegEx2 := TPerlRegEx.Create;
+    RegEx2.Subject := Eqip_Jcts_List[i];
+    RegEx2.RegEx   := '\d{1,2}、';
+    RegEx2.Replacement:='';
+    RegEx2.ReplaceAll;
+    Eqip_Jcts2:=RegEx2.Subject;
+    FreeAndNil(RegEx2);
+    if trim(Eqip_Jcts2)<>'' then Peis_Jcjl:=Peis_Jcjl+Eqip_Jcts2+'。'+#13;//检查结论
+    //生成检查结论end
 
-    //生成检查建议
+    //生成检查建议begin
     adotemp555.First;
     while not adotemp555.Eof do
     begin
-      if pos(adotemp555.fieldbyname('name').AsString,Eqip_Jcts_List[i])>0 then
-        Peis_Jcjy:=Peis_Jcjy+adotemp555.fieldbyname('Reserve2').AsString+#13;
+      //匹配异常关键字
+      RegEx3 := TPerlRegEx.Create;
+      RegEx3.Subject := Eqip_Jcts_List[i];
+      RegEx3.RegEx   := adotemp555.fieldbyname('name').AsString;
+      b3:=RegEx3.Match;
+      FreeAndNil(RegEx3);
+      if b3 then Peis_Jcjy:=Peis_Jcjy+adotemp555.fieldbyname('Reserve2').AsString+#13;
       adotemp555.Next;
     end;
+    //生成检查建议end
   end;
   Eqip_Jcts_List.Free;
   adotemp555.Free;
@@ -399,7 +429,7 @@ begin
     ExecSQLCmd(PeisConnStr,'insert into chk_valu (pkunid,itemid,itemvalue) values ('+Peis_Unid+','''+jcjl_itemid+''','''+Peis_Jcjl+''')');
   end else
   begin
-    ExecSQLCmd(PeisConnStr,'update chk_valu set itemvalue='''+Peis_Jcjl+''' where pkunid='+Peis_Unid+' and itemid='''+jcjl_itemid+''' ');
+    ExecSQLCmd(PeisConnStr,'update chk_valu set itemvalue=itemvalue+'''+Peis_Jcjl+''' where pkunid='+Peis_Unid+' and itemid='''+jcjl_itemid+''' ');
   end;
 
   Peis_Jcjy_Num:=strtoint(ScalarSQLCmd(PeisConnStr,'select count(*) from chk_valu cv where cv.pkunid='+Peis_Unid+' and cv.itemid='''+jcjy_itemid+''' '));
@@ -408,10 +438,20 @@ begin
     ExecSQLCmd(PeisConnStr,'insert into chk_valu (pkunid,itemid,itemvalue) values ('+Peis_Unid+','''+jcjy_itemid+''','''+Peis_Jcjy+''')');
   end else
   begin
-    ExecSQLCmd(PeisConnStr,'update chk_valu set itemvalue='''+Peis_Jcjy+''' where pkunid='+Peis_Unid+' and itemid='''+jcjy_itemid+''' ');
+    ExecSQLCmd(PeisConnStr,'update chk_valu set itemvalue=itemvalue+'''+Peis_Jcjy+''' where pkunid='+Peis_Unid+' and itemid='''+jcjy_itemid+''' ');
   end;
 
   ADOQuery3.Requery;
+
+  StudyResultIdentity:=ADOQuery1.fieldbyname('StudyResultIdentity').AsString;
+  
+  if strtoint(ScalarSQLCmd(EquipConnStr,'select count(*) from PEIS_Send ps where ps.StudyResultIdentity='+StudyResultIdentity))<=0 then
+    ExecSQLCmd(EquipConnStr,'insert into PEIS_Send (StudyResultIdentity,SendSuccNum) values ('+StudyResultIdentity+',1)')
+  else ExecSQLCmd(EquipConnStr,'update PEIS_Send set SendSuccNum=SendSuccNum+1 where StudyResultIdentity='+StudyResultIdentity);
+
+  BitBtn2Click(BitBtn2);//用于刷新已发送的颜色
+
+  MESSAGEDLG('发送完成!',mtInformation,[MBOK],0);
 end;
 
 procedure TfrmMain.ADOQuery1AfterScroll(DataSet: TDataSet);
@@ -489,7 +529,7 @@ begin
     	' from chk_valu cv '+
     	' where '+
       ' cv.pkunid='+ss2+
-      ' and cv.Reserve5 in (3,4,5) '+
+      ' and cv.Reserve5 in (3,1,2) '+
       ' order by cv.printorder ';
 
     ADOQuery3.Close;
@@ -512,6 +552,26 @@ begin
   PatientIdentity:=ADOQuery1.fieldbyname('PatientIdentity').AsString;
   ADOQuery1.Requery;
   ADOQuery1.Locate('PatientIdentity',PatientIdentity,[loCaseInsensitive]) ;
+end;
+
+procedure TfrmMain.DBGrid1DrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+var
+  strSendSuccNum:String;
+  SendSuccNum:integer;
+begin
+  //发送过的姓名列变化颜色
+  if datacol=0 then
+  begin
+    strSendSuccNum:=tdbgrid(sender).DataSource.DataSet.fieldbyname('SendSuccNum').AsString;
+    SendSuccNum:=strtointdef(strSendSuccNum,0);
+    IF SendSuccNum>0 then
+    begin
+      tdbgrid(sender).Canvas.Font.Color:=clred;
+      tdbgrid(sender).DefaultDrawColumnCell(rect,datacol,column,state);
+    end;
+  end;
 end;
 
 end.
