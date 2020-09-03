@@ -74,7 +74,7 @@ uses UCommFunction;
 
 const
   sCryptSeed='lc';//加解密种子
-  SYSNAME='LIS'; 
+  SYSNAME='PEIS'; 
 
 var
   PeisConnStr:String;
