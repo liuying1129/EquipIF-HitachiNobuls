@@ -414,7 +414,7 @@ begin
     Eqip_Jcts4:=RegEx4.Subject;
     FreeAndNil(RegEx4);
     
-    if trim(Eqip_Jcts4)<>'' then Peis_Jcjl:=Peis_Jcjl+Eqip_Jcts4+'。'+#13;//检查结论
+    if trim(Eqip_Jcts4)<>'' then Peis_Jcjl:=Peis_Jcjl+trim(Eqip_Jcts4)+'。'+#13;//检查结论
     //生成检查结论end
 
     //生成检查建议begin
