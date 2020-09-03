@@ -74,7 +74,7 @@ uses UCommFunction;
 
 const
   sCryptSeed='lc';//加解密种子
-  SYSNAME='PEIS'; 
+  SYSNAME='LIS'; 
 
 var
   PeisConnStr:String;
@@ -257,11 +257,13 @@ var
   jcjy_itemid:string;//【检查建议】项目代码
   Eqip_Jcts:String;
   Eqip_Jcts2:String;
+  Eqip_Jcts4:String;
   Peis_Unid:String;
   Eqip_Jcts_List:TStrings;
   RegEx: TPerlRegEx;
   RegEx2: TPerlRegEx;
   RegEx3: TPerlRegEx;
+  RegEx4: TPerlRegEx;
   b3:boolean;
   i:integer;
 
@@ -402,7 +404,17 @@ begin
     RegEx2.ReplaceAll;
     Eqip_Jcts2:=RegEx2.Subject;
     FreeAndNil(RegEx2);
-    if trim(Eqip_Jcts2)<>'' then Peis_Jcjl:=Peis_Jcjl+Eqip_Jcts2+'。'+#13;//检查结论
+
+    //删除检查提示中的建议
+    RegEx4 := TPerlRegEx.Create;
+    RegEx4.Subject := Eqip_Jcts2;
+    RegEx4.RegEx   := '，建议[\s\S]*';
+    RegEx4.Replacement:='';
+    RegEx4.ReplaceAll;
+    Eqip_Jcts4:=RegEx4.Subject;
+    FreeAndNil(RegEx4);
+    
+    if trim(Eqip_Jcts4)<>'' then Peis_Jcjl:=Peis_Jcjl+Eqip_Jcts4+'。'+#13;//检查结论
     //生成检查结论end
 
     //生成检查建议begin
@@ -441,15 +453,13 @@ begin
     ExecSQLCmd(PeisConnStr,'update chk_valu set itemvalue=itemvalue+'''+Peis_Jcjy+''' where pkunid='+Peis_Unid+' and itemid='''+jcjy_itemid+''' ');
   end;
 
-  ADOQuery3.Requery;
-
   StudyResultIdentity:=ADOQuery1.fieldbyname('StudyResultIdentity').AsString;
   
   if strtoint(ScalarSQLCmd(EquipConnStr,'select count(*) from PEIS_Send ps where ps.StudyResultIdentity='+StudyResultIdentity))<=0 then
     ExecSQLCmd(EquipConnStr,'insert into PEIS_Send (StudyResultIdentity,SendSuccNum) values ('+StudyResultIdentity+',1)')
   else ExecSQLCmd(EquipConnStr,'update PEIS_Send set SendSuccNum=SendSuccNum+1 where StudyResultIdentity='+StudyResultIdentity);
 
-  BitBtn2Click(BitBtn2);//用于刷新已发送的颜色
+  BitBtn2Click(BitBtn2);//用于刷新已发送的颜色//该语句一定会触发UpdateAdoquery3方法。故无需再次ADOQuery3.Requery;
 
   MESSAGEDLG('发送完成!',mtInformation,[MBOK],0);
 end;
