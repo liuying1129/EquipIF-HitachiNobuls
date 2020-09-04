@@ -398,8 +398,8 @@ begin
     //生成检查结论begin
     //删除检查提示中的序号(如1、23、)
     RegEx2 := TPerlRegEx.Create;
-    RegEx2.Subject := Eqip_Jcts_List[i];
-    RegEx2.RegEx   := '\d{1,2}、';
+    RegEx2.Subject := trim(Eqip_Jcts_List[i]);
+    RegEx2.RegEx   := '^\d{1,2}、';
     RegEx2.Replacement:='';
     RegEx2.ReplaceAll;
     Eqip_Jcts2:=RegEx2.Subject;
