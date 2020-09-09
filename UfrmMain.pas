@@ -378,18 +378,22 @@ begin
     ExecSQLCmd(PeisConnStr,'update chk_valu set itemvalue='''+Eqip_Jcts+''' where pkunid='+Peis_Unid+' and itemid='''+jcts_itemid+''' ');
   end;
 
-  adotemp555:=tadoquery.Create(nil);
-  adotemp555.Connection:=ADOConnPEIS;
-  adotemp555.Close;
-  adotemp555.SQL.Clear;
-  adotemp555.SQL.Text:='select name,Reserve2 from CommCode where TypeName=''异常建议'' ';
-  adotemp555.Open;
-
   RegEx := TPerlRegEx.Create;
   RegEx.Subject := Eqip_Jcts;
   RegEx.RegEx   := '。|；';//用|分隔多个分隔符.正则表达式|表示"或"
   Eqip_Jcts_List:=TStringList.Create;
-  RegEx.Split(Eqip_Jcts_List,MaxInt);//MaxInt,表示能分多少就分多少
+  try
+    RegEx.Split(Eqip_Jcts_List,MaxInt);//MaxInt,表示能分多少就分多少
+  except
+    on E:Exception do
+    begin
+      WriteLog(pchar('RegEx.Split失败:'+E.Message));
+      MESSAGEDLG('RegEx.Split失败:'+E.Message,mtError,[mbOK],0);
+      FreeAndNil(RegEx);
+      Eqip_Jcts_List.Free;
+      exit;
+    end;
+  end;
   FreeAndNil(RegEx);
   for i :=0  to Eqip_Jcts_List.Count-1 do
   begin
@@ -401,7 +405,18 @@ begin
     RegEx2.Subject := trim(Eqip_Jcts_List[i]);
     RegEx2.RegEx   := '^\d{1,2}、';
     RegEx2.Replacement:='';
-    RegEx2.ReplaceAll;
+    try
+      RegEx2.ReplaceAll;
+    except
+      on E:Exception do
+      begin
+        WriteLog(pchar('Subject:'+trim(Eqip_Jcts_List[i])+'.删除检查提示序号RegEx.ReplaceAll失败:'+E.Message));
+        MESSAGEDLG('Subject:'+trim(Eqip_Jcts_List[i])+'.删除检查提示序号RegEx.ReplaceAll失败:'+E.Message,mtError,[mbOK],0);
+        FreeAndNil(RegEx2);
+        Eqip_Jcts_List.Free;
+        exit;
+      end;
+    end;
     Eqip_Jcts2:=RegEx2.Subject;
     FreeAndNil(RegEx2);
 
@@ -410,7 +425,18 @@ begin
     RegEx4.Subject := Eqip_Jcts2;
     RegEx4.RegEx   := '，建议[\s\S]*';
     RegEx4.Replacement:='';
-    RegEx4.ReplaceAll;
+    try
+      RegEx4.ReplaceAll;
+    except
+      on E:Exception do
+      begin
+        WriteLog(pchar('Subject:'+Eqip_Jcts2+'.删除检查提示建议RegEx.ReplaceAll失败:'+E.Message));
+        MESSAGEDLG('Subject:'+Eqip_Jcts2+'.删除检查提示建议RegEx.ReplaceAll失败:'+E.Message,mtError,[mbOK],0);
+        FreeAndNil(RegEx4);
+        Eqip_Jcts_List.Free;
+        exit;
+      end;
+    end;
     Eqip_Jcts4:=RegEx4.Subject;
     FreeAndNil(RegEx4);
     
@@ -418,22 +444,39 @@ begin
     //生成检查结论end
 
     //生成检查建议begin
-    adotemp555.First;
+    adotemp555:=tadoquery.Create(nil);
+    adotemp555.Connection:=ADOConnPEIS;
+    adotemp555.Close;
+    adotemp555.SQL.Clear;
+    adotemp555.SQL.Text:='select name,Reserve2 from CommCode where TypeName=''异常建议'' ';
+    adotemp555.Open;
     while not adotemp555.Eof do
     begin
       //匹配异常关键字
       RegEx3 := TPerlRegEx.Create;
       RegEx3.Subject := Eqip_Jcts_List[i];
       RegEx3.RegEx   := adotemp555.fieldbyname('name').AsString;
-      b3:=RegEx3.Match;
+      try
+        b3:=RegEx3.Match;
+      except
+        on E:Exception do
+        begin
+          WriteLog(pchar('Subject:'+Eqip_Jcts_List[i]+'.RegEx.Match失败:'+E.Message+'.正则表达式:'+adotemp555.fieldbyname('name').AsString));
+          MESSAGEDLG('Subject:'+Eqip_Jcts_List[i]+'.RegEx.Match失败:'+E.Message+'.正则表达式:'+adotemp555.fieldbyname('name').AsString,mtError,[mbOK],0);
+          FreeAndNil(RegEx3);
+          Eqip_Jcts_List.Free;
+          adotemp555.Free;
+          exit;
+        end;
+      end;
       FreeAndNil(RegEx3);
       if b3 then Peis_Jcjy:=Peis_Jcjy+adotemp555.fieldbyname('Reserve2').AsString+#13;
       adotemp555.Next;
     end;
+    adotemp555.Free;
     //生成检查建议end
   end;
   Eqip_Jcts_List.Free;
-  adotemp555.Free;
 
   Peis_Jcjl_Num:=strtoint(ScalarSQLCmd(PeisConnStr,'select count(*) from chk_valu cv where cv.pkunid='+Peis_Unid+' and cv.itemid='''+jcjl_itemid+''' '));
   if Peis_Jcjl_Num<=0 then
