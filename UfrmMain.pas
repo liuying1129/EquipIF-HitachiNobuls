@@ -255,6 +255,8 @@ var
   jcts_itemid:string;//【检查提示】项目代码
   jcjl_itemid:string;//【检查结论】项目代码
   jcjy_itemid:string;//【检查建议】项目代码
+  jcjl_combinid:string;//【检查结论】组合项目代码
+  jcjy_combinid:string;//【检查建议】组合项目代码
   Eqip_Jcts:String;
   Eqip_Jcts2:String;
   Eqip_Jcts4:String;
@@ -328,42 +330,44 @@ begin
   adotemp4.Connection:=ADOConnPEIS;
   adotemp4.Close;
   adotemp4.SQL.Clear;
-  adotemp4.SQL.Text:='select itemid from clinicchkitem cci where cci.Reserve5=1 ';
+  adotemp4.SQL.Text:='select cci.itemid,cbi.id from clinicchkitem cci,CombSChkItem csi,combinitem cbi where cci.Reserve5=1 and cci.unid=csi.itemunid and csi.combunid=cbi.unid and cci.SysName=''PEIS'' and cbi.SysName=''PEIS'' ';
   adotemp4.Open;
   if adotemp4.RecordCount<=0 then
   begin
-    MESSAGEDLG('不存在【检查结论】项目(保留字段5=1).请管理员检查项目设置!',mtError,[MBOK],0);
+    MESSAGEDLG('不存在【检查结论】项目(保留字段5=1)或不存在组合项目.请管理员检查项目设置!',mtError,[MBOK],0);
     adotemp4.Free;
     exit;
   end;
   if adotemp4.RecordCount>1 then
   begin
-    MESSAGEDLG('存在多条【检查结论】项目(保留字段5=1).请管理员检查项目设置!',mtError,[MBOK],0);
+    MESSAGEDLG('存在多条【检查结论】项目(保留字段5=1)或属于多个组合项目.请管理员检查项目设置!',mtError,[MBOK],0);
     adotemp4.Free;
     exit;
   end;
   jcjl_itemid:=adotemp4.fieldbyname('itemid').AsString;
+  jcjl_combinid:=adotemp4.fieldbyname('id').AsString;
   adotemp4.Free;
 
   adotemp5:=tadoquery.Create(nil);
   adotemp5.Connection:=ADOConnPEIS;
   adotemp5.Close;
   adotemp5.SQL.Clear;
-  adotemp5.SQL.Text:='select itemid from clinicchkitem cci where cci.Reserve5=2 ';
+  adotemp5.SQL.Text:='select cci.itemid,cbi.id from clinicchkitem cci,CombSChkItem csi,combinitem cbi where cci.Reserve5=2 and cci.unid=csi.itemunid and csi.combunid=cbi.unid and cci.SysName=''PEIS'' and cbi.SysName=''PEIS'' ';
   adotemp5.Open;
   if adotemp5.RecordCount<=0 then
   begin
-    MESSAGEDLG('不存在【检查建议】项目(保留字段5=2).请管理员检查项目设置!',mtError,[MBOK],0);
+    MESSAGEDLG('不存在【检查建议】项目(保留字段5=2)或不存在组合项目.请管理员检查项目设置!',mtError,[MBOK],0);
     adotemp5.Free;
     exit;
   end;
   if adotemp5.RecordCount>1 then
   begin
-    MESSAGEDLG('存在多条【检查建议】项目(保留字段5=2).请管理员检查项目设置!',mtError,[MBOK],0);
+    MESSAGEDLG('存在多条【检查建议】项目(保留字段5=2)或属于多个组合项目.请管理员检查项目设置!',mtError,[MBOK],0);
     adotemp5.Free;
     exit;
   end;
   jcjy_itemid:=adotemp5.fieldbyname('itemid').AsString;
+  jcjy_combinid:=adotemp5.fieldbyname('id').AsString;
   adotemp5.Free;
 
   Peis_Unid:=ADOQuery2.fieldbyname('Unid').AsString;
@@ -481,7 +485,7 @@ begin
   Peis_Jcjl_Num:=strtoint(ScalarSQLCmd(PeisConnStr,'select count(*) from chk_valu cv where cv.pkunid='+Peis_Unid+' and cv.itemid='''+jcjl_itemid+''' '));
   if Peis_Jcjl_Num<=0 then
   begin
-    ExecSQLCmd(PeisConnStr,'insert into chk_valu (pkunid,itemid,itemvalue) values ('+Peis_Unid+','''+jcjl_itemid+''','''+Peis_Jcjl+''')');
+    ExecSQLCmd(PeisConnStr,'insert into chk_valu (pkunid,pkcombin_id,itemid,itemvalue) values ('+Peis_Unid+','''+jcjl_combinid+''','''+jcjl_itemid+''','''+Peis_Jcjl+''')');
   end else
   begin
     ExecSQLCmd(PeisConnStr,'update chk_valu set itemvalue=itemvalue+'''+Peis_Jcjl+''' where pkunid='+Peis_Unid+' and itemid='''+jcjl_itemid+''' ');
@@ -490,7 +494,7 @@ begin
   Peis_Jcjy_Num:=strtoint(ScalarSQLCmd(PeisConnStr,'select count(*) from chk_valu cv where cv.pkunid='+Peis_Unid+' and cv.itemid='''+jcjy_itemid+''' '));
   if Peis_Jcjy_Num<=0 then
   begin
-    ExecSQLCmd(PeisConnStr,'insert into chk_valu (pkunid,itemid,itemvalue) values ('+Peis_Unid+','''+jcjy_itemid+''','''+Peis_Jcjy+''')');
+    ExecSQLCmd(PeisConnStr,'insert into chk_valu (pkunid,pkcombin_id,itemid,itemvalue) values ('+Peis_Unid+','''+jcjy_combinid+''','''+jcjy_itemid+''','''+Peis_Jcjy+''')');
   end else
   begin
     ExecSQLCmd(PeisConnStr,'update chk_valu set itemvalue=itemvalue+'''+Peis_Jcjy+''' where pkunid='+Peis_Unid+' and itemid='''+jcjy_itemid+''' ');
