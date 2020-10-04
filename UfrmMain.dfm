@@ -38,9 +38,9 @@ object frmMain: TfrmMain
       end>
   end
   object GroupBox1: TGroupBox
-    Left = 644
+    Left = 674
     Top = 0
-    Width = 390
+    Width = 360
     Height = 480
     Align = alClient
     Caption = 'PEIS'#20449#24687
@@ -48,7 +48,7 @@ object frmMain: TfrmMain
     object DBGrid2: TDBGrid
       Left = 2
       Top = 15
-      Width = 386
+      Width = 356
       Height = 150
       Align = alTop
       DataSource = DataSource2
@@ -63,7 +63,7 @@ object frmMain: TfrmMain
     object PageControl2: TPageControl
       Left = 2
       Top = 165
-      Width = 386
+      Width = 356
       Height = 313
       ActivePage = TabSheet4
       Align = alClient
@@ -92,7 +92,7 @@ object frmMain: TfrmMain
         object Panel2: TPanel
           Left = 0
           Top = 0
-          Width = 378
+          Width = 348
           Height = 40
           Align = alTop
           TabOrder = 0
@@ -122,7 +122,7 @@ object frmMain: TfrmMain
         object Memo2: TMemo
           Left = 0
           Top = 40
-          Width = 378
+          Width = 348
           Height = 245
           Align = alClient
           ReadOnly = True
@@ -134,16 +134,16 @@ object frmMain: TfrmMain
   object GroupBox2: TGroupBox
     Left = 0
     Top = 0
-    Width = 644
+    Width = 674
     Height = 480
     Align = alLeft
     Caption = #35774#22791#26816#26597#20449#24687
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 2
-      Top = 131
-      Width = 640
-      Height = 347
+      Top = 161
+      Width = 670
+      Height = 317
       ActivePage = TabSheet1
       Align = alClient
       TabOrder = 0
@@ -152,8 +152,8 @@ object frmMain: TfrmMain
         object DBGrid1: TDBGrid
           Left = 0
           Top = 0
-          Width = 632
-          Height = 319
+          Width = 662
+          Height = 289
           Align = alClient
           DataSource = DataSource1
           ReadOnly = True
@@ -163,6 +163,7 @@ object frmMain: TfrmMain
           TitleFont.Height = -13
           TitleFont.Name = #23435#20307
           TitleFont.Style = []
+          OnCellClick = DBGrid1CellClick
           OnDrawColumnCell = DBGrid1DrawColumnCell
         end
       end
@@ -183,8 +184,8 @@ object frmMain: TfrmMain
     object Panel1: TPanel
       Left = 2
       Top = 15
-      Width = 640
-      Height = 116
+      Width = 670
+      Height = 146
       Align = alTop
       TabOrder = 1
       object Label1: TLabel
@@ -239,9 +240,39 @@ object frmMain: TfrmMain
         Font.Style = [fsItalic]
         ParentFont = False
       end
+      object SpeedButton1: TSpeedButton
+        Left = 414
+        Top = 119
+        Width = 35
+        Height = 22
+        Caption = #20840#36873
+        OnClick = SpeedButton1Click
+      end
+      object SpeedButton2: TSpeedButton
+        Left = 449
+        Top = 119
+        Width = 45
+        Height = 22
+        Caption = #20840#19981#36873
+        OnClick = SpeedButton2Click
+      end
+      object Label6: TLabel
+        Left = 155
+        Top = 93
+        Width = 13
+        Height = 13
+        Caption = #33267
+      end
+      object Label7: TLabel
+        Left = 7
+        Top = 93
+        Width = 52
+        Height = 13
+        Caption = #21019#24314#26102#38388
+      end
       object DBNavigator1: TDBNavigator
-        Left = 144
-        Top = 87
+        Left = 60
+        Top = 117
         Width = 192
         Height = 25
         DataSource = DataSource1
@@ -249,22 +280,48 @@ object frmMain: TfrmMain
         TabOrder = 0
       end
       object BitBtn1: TBitBtn
-        Left = 376
+        Left = 414
         Top = 87
         Width = 100
         Height = 25
         Caption = #21457#36865#21040'PEIS(F3)'
         TabOrder = 1
-        OnClick = N1Click
+        OnClick = BitBtn1Click
       end
-      object BitBtn2: TBitBtn
-        Left = 8
-        Top = 87
-        Width = 75
-        Height = 25
-        Caption = #21047#26032
+      object DateTimePicker1: TDateTimePicker
+        Left = 60
+        Top = 90
+        Width = 95
+        Height = 21
+        Date = 44117.382772129630000000
+        Time = 44117.382772129630000000
         TabOrder = 2
-        OnClick = BitBtn2Click
+        OnChange = DateTimePicker1Change
+      end
+      object DateTimePicker2: TDateTimePicker
+        Left = 170
+        Top = 90
+        Width = 95
+        Height = 21
+        Date = 44117.382772129630000000
+        Time = 44117.382772129630000000
+        TabOrder = 3
+        OnChange = DateTimePicker2Change
+      end
+      object LabeledEdit1: TLabeledEdit
+        Left = 329
+        Top = 90
+        Width = 70
+        Height = 21
+        Hint = #22238#36710#26597#35810
+        EditLabel.Width = 52
+        EditLabel.Height = 13
+        EditLabel.Caption = #36865#26816#21307#29983
+        LabelPosition = lpLeft
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 4
+        OnKeyDown = LabeledEdit1KeyDown
       end
     end
   end
@@ -325,7 +382,6 @@ object frmMain: TfrmMain
     object Action1: TAction
       Caption = 'Action1'
       ShortCut = 114
-      OnExecute = N1Click
     end
   end
 end
