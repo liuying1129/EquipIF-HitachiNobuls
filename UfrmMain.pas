@@ -7,7 +7,7 @@ uses
   Dialogs, ComCtrls, ToolWin, Inifiles, DB, ADODB, Grids, DBGrids, Menus,
   StdCtrls, ExtCtrls,PerlRegEx, DBCtrls, Buttons, ActnList, Math, StrUtils;
 
-type TArCheckBoxValue = array of array [0..1] of integer;
+type TArCheckBoxValue = array of array [0..1] of String;
   
 type
   TfrmMain = class(TForm)
@@ -288,8 +288,8 @@ begin
   while not adotemp22.Eof do
   begin
     //该二维数组中一定要有个字段标识唯一性的
-    ArCheckBoxValue[I,0]:=0;
-    ArCheckBoxValue[I,1]:=adotemp22.FieldByName('StudyResultIdentity').AsInteger;
+    ArCheckBoxValue[I,0]:='0';
+    ArCheckBoxValue[I,1]:=adotemp22.FieldByName('StudyResultIdentity').AsString;
 
     adotemp22.Next;
     inc(i);
@@ -388,7 +388,8 @@ var
   SendSuccNum:integer;
   
   checkBox_check:boolean;
-  iUNID,i:INTEGER;
+  i:INTEGER;
+  iUNID:String;
 begin
   //发送过的姓名列变化颜色
   if datacol=0 then
@@ -406,12 +407,12 @@ begin
   begin
     (sender as TDBGrid).Canvas.FillRect(Rect);
     checkBox_check:=false;
-    iUNID:=(Sender AS TDBGRID).DataSource.DataSet.FieldByName('StudyResultIdentity').AsInteger;
+    iUNID:=(Sender AS TDBGRID).DataSource.DataSet.FieldByName('StudyResultIdentity').AsString;
     for i :=0  to (Sender AS TDBGRID).DataSource.DataSet.RecordCount-1 do
     begin
       if ArCheckBoxValue[i,1]=iUNID then
       begin
-        checkBox_check:=ArCheckBoxValue[i,0]=1;
+        checkBox_check:=ArCheckBoxValue[i,0]='1';
         break;
       end;
     end;//}
@@ -445,7 +446,7 @@ begin
     ifSelect:=false;
     for i :=low(ArCheckBoxValue)  to high(ArCheckBoxValue) do//循环ArCheckBoxValue
     begin
-      if (ArCheckBoxValue[i,1]=adotemp11.fieldbyname('StudyResultIdentity').AsInteger)and(ArCheckBoxValue[i,0]=1) then
+      if (ArCheckBoxValue[i,1]=adotemp11.fieldbyname('StudyResultIdentity').AsString)and(ArCheckBoxValue[i,0]='1') then
       begin
         ifSelect:=true;
         break;
@@ -741,17 +742,18 @@ end;
 
 procedure TfrmMain.DBGrid1CellClick(Column: TColumn);
 var
-  iUNID,i:INTEGER;
+  i:INTEGER;
+  iUNID:String;
 begin
   if not Column.Grid.DataSource.DataSet.Active then exit;  
   if Column.Field.FieldName <>'选择' then exit;
 
-  iUNID:=Column.Grid.DataSource.DataSet.FieldByName('StudyResultIdentity').AsInteger;
+  iUNID:=Column.Grid.DataSource.DataSet.FieldByName('StudyResultIdentity').AsString;
   for i :=low(ArCheckBoxValue)  to high(ArCheckBoxValue) do//循环ArCheckBoxValue
   begin
     if ArCheckBoxValue[i,1]=iUNID then
     begin
-      ArCheckBoxValue[i,0]:=ifThen(ArCheckBoxValue[i,0]=1,0,1);
+      ArCheckBoxValue[i,0]:=ifThen(ArCheckBoxValue[i,0]='1','0','1');
       Column.Grid.Refresh;//调用DBGrid1DrawColumnCell事件
       break;
     end;
@@ -764,7 +766,7 @@ var
 begin
   for i:=LOW(ArCheckBoxValue) to HIGH(ArCheckBoxValue) do
   begin
-    ArCheckBoxValue[I,0]:=1;
+    ArCheckBoxValue[I,0]:='1';
   end;
   DBGrid1.Refresh;//调用DBGrid1DrawColumnCell事件
 end;
@@ -775,7 +777,7 @@ var
 begin
   for i:=LOW(ArCheckBoxValue) to HIGH(ArCheckBoxValue) do
   begin
-    ArCheckBoxValue[I,0]:=0;
+    ArCheckBoxValue[I,0]:='0';
   end;
   DBGrid1.Refresh;//调用DBGrid1DrawColumnCell事件
 end;
