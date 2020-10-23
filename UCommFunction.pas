@@ -5,9 +5,6 @@ uses SysUtils,ADODB,Dialogs;
 
 function ShowOptionForm(const pCaption,pTabSheetCaption,pItemInfo,pInifile:Pchar):boolean;stdcall;external 'OptionSetForm.dll';
 function DeCryptStr(aStr: Pchar; aKey: Pchar): Pchar;stdcall;external 'DESCrypt.dll';//Ω‚√‹
-function EnCryptStr(aStr: Pchar; aKey: Pchar): Pchar;stdcall;external 'DESCrypt.dll';//º”√‹
-function GetHDSn(const RootPath:Pchar):Pchar;stdcall;external 'LYFunction.dll';
-function TryStrToFloatExt(const pSourStr:Pchar; var Value: Single): Boolean;stdcall;external 'LYFunction.dll';
 procedure WriteLog(const ALogStr: Pchar);stdcall;external 'LYFunction.dll';
 function ExecSQLCmd(AConnectionString:string;ASQL:string):integer;
 function ScalarSQLCmd(AConnectionString:string;ASQL:string):string;
