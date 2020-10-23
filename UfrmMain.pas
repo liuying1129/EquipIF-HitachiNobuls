@@ -720,12 +720,20 @@ end;
 
 procedure TfrmMain.SpeedButton1Click(Sender: TObject);
 var
-  i:integer;
+  adotemp11:tadoquery;
 begin
-  for i:=0 to ArCheckBoxValue.Count-1 do
+  ArCheckBoxValue.Clear;
+  
+  adotemp11:=tadoquery.Create(nil);
+  adotemp11.clone(ADOQuery1);
+  while not adotemp11.Eof do
   begin
-    ArCheckBoxValue.ValueFromIndex[i]:='1';
+    ArCheckBoxValue.Add(adotemp11.fieldbyname('StudyResultIdentity').AsString+'=1');
+
+    adotemp11.Next;
   end;
+  adotemp11.Free;
+
   DBGrid1.Refresh;//调用DBGrid1DrawColumnCell事件
 end;
 
