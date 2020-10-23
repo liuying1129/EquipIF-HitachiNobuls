@@ -385,7 +385,7 @@ begin
   if Column.Field.FieldName='选择' then
   begin
     (sender as TDBGrid).Canvas.FillRect(Rect);
-    checkBox_check:=ArCheckBoxValue.Values[(Sender AS TDBGRID).DataSource.DataSet.FieldByName('report_key').AsString]='1';
+    checkBox_check:=ArCheckBoxValue.Values[(Sender AS TDBGRID).DataSource.DataSet.FieldByName('StudyResultIdentity').AsString]='1';
     DrawFrameControl((sender as TDBGrid).Canvas.Handle,Rect, DFC_BUTTON, CtrlState[checkBox_check]);
   end else (sender as TDBGrid).DefaultDrawColumnCell(Rect,DataCol,Column,State);
 end;
@@ -420,8 +420,8 @@ begin
   adotemp11.clone(ADOQuery1);
   while not adotemp11.Eof do
   begin
-    if ArCheckBoxValue.Values[adotemp11.fieldbyname('report_key').AsString]='1' then
-      singleSend2Peis(adotemp11.FieldByName('report_key').AsString,adotemp11.FieldByName('姓名').AsString,adotemp11.FieldByName('性别').AsString,adotemp11.FieldByName('年龄').AsString,adotemp11.FieldByName('检查提示').AsString);
+    if ArCheckBoxValue.Values[adotemp11.fieldbyname('StudyResultIdentity').AsString]='1' then
+      singleSend2Peis(adotemp11.FieldByName('StudyResultIdentity').AsString,adotemp11.FieldByName('姓名').AsString,adotemp11.FieldByName('性别').AsString,adotemp11.FieldByName('年龄').AsString,adotemp11.FieldByName('检查提示').AsString);
 
     adotemp11.Next;
   end;
@@ -713,8 +713,8 @@ begin
   if Column.Field.FieldName <>'选择' then exit;
 
   //TStringList中无该键的情况会自动新增
-  ArCheckBoxValue.Values[Column.Grid.DataSource.DataSet.FieldByName('report_key').AsString]:=
-    ifThen(ArCheckBoxValue.Values[Column.Grid.DataSource.DataSet.FieldByName('report_key').AsString]='1','0','1');
+  ArCheckBoxValue.Values[Column.Grid.DataSource.DataSet.FieldByName('StudyResultIdentity').AsString]:=
+    ifThen(ArCheckBoxValue.Values[Column.Grid.DataSource.DataSet.FieldByName('StudyResultIdentity').AsString]='1','0','1');
   Column.Grid.Refresh;//调用DBGrid1DrawColumnCell事件
 end;
 
