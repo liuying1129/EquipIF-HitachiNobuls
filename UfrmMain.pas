@@ -276,6 +276,8 @@ begin
   dbgrid1.Columns[8].Width:=200;
 
   ArCheckBoxValue.Clear;
+
+  StatusBar1.Panels[4].Text:=inttostr(DataSet.RecordCount);
 end;
 
 procedure TfrmMain.ADOQuery1AfterScroll(DataSet: TDataSet);

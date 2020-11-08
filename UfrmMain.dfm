@@ -34,6 +34,10 @@ object frmMain: TfrmMain
         Width = 35
       end
       item
+        Text = #35760#24405#26465#25968
+        Width = 55
+      end
+      item
         Width = 50
       end>
   end
