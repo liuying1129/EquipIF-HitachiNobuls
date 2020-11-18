@@ -174,7 +174,8 @@ var
 begin
   ss1:='SELECT TOP 3000 '+//2个月的体检量
       'P.PatientName as 姓名 '+
-      ',P.PatientAge as 年龄 '+
+      //',P.PatientAge as 年龄 '+
+      ',V.StudyAge as 年龄 '+//20201118SQL事件探测器,彩超界面使用V.StudyAge字段
       ',CASE UPPER(P.PatientSex) WHEN ''M'' THEN ''男'' when ''F'' THEN ''女'' else ''未知'' end as 性别 '+
       ',0 as 选择 '+
       ',P.CreateDateTime as 创建时间 '+
@@ -223,6 +224,7 @@ begin
       //',PS.LastSendTime AS 最后发送时间 '+
 
   'FROM T_Patient P '+
+  'LEFT JOIN T_Visit V ON V.PatientIdentity=P.PatientIdentity '+
   'LEFT JOIN T_Order O ON O.PatientIdentity=P.PatientIdentity '+
   'LEFT JOIN T_Study S ON S.OrderIdentity=O.OrderIdentity '+
   'LEFT JOIN T_StudyResult SR ON SR.StudyIdentity=S.StudyIdentity '+
