@@ -225,7 +225,7 @@ begin
 
   'FROM T_Patient P '+
   'LEFT JOIN T_Visit V ON V.PatientIdentity=P.PatientIdentity '+
-  'LEFT JOIN T_Order O ON O.PatientIdentity=P.PatientIdentity '+
+  'LEFT JOIN T_Order O ON O.PatientIdentity=P.PatientIdentity AND O.VisitIdentity=V.VisitIdentity '+
   'LEFT JOIN T_Study S ON S.OrderIdentity=O.OrderIdentity '+
   'LEFT JOIN T_StudyResult SR ON SR.StudyIdentity=S.StudyIdentity '+
   'LEFT JOIN PEIS_Send PS ON PS.StudyResultIdentity=SR.StudyResultIdentity '+
@@ -233,7 +233,8 @@ begin
   ' and O.ClinicDepartment=''体检'' '+//只查询体检报告单(申请科室=体检)
   ' and P.PatientName is not null and P.PatientName<>'''' '+//无姓名不发送
   ' and isnull(SR.StudyHint,'''')<>'''' '+//无检查提示不发送//意味着StudyResultIdentity有值
-  ' AND P.CreateDateTime between :begin_study_dttm and :end_study_dttm '+
+  //' AND P.CreateDateTime between :begin_study_dttm and :end_study_dttm '+
+  ' AND V.DateTimeRegist between :begin_study_dttm and :end_study_dttm '+
   ifThen(trim(LabeledEdit1.Text)<>'',' and O.ClinicDoctor like '''+trim(LabeledEdit1.Text)+'%'' ')+
   ' ORDER BY CreateDateTime DESC';
   ADOQuery1.Close;
