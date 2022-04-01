@@ -657,7 +657,7 @@ begin
     adotemp555.Connection:=ADOConnPEIS;
     adotemp555.Close;
     adotemp555.SQL.Clear;
-    adotemp555.SQL.Text:='select name,Reserve2 from CommCode where TypeName=''异常建议'' ';
+    adotemp555.SQL.Text:='select name,Reserve2 from CommCode where TypeName=''异常建议'' and isnull(name,'''')<>'''' ';//如正则表达式RegEx为空则TPerlRegEx.Match报错
     adotemp555.Open;
     while not adotemp555.Eof do
     begin
